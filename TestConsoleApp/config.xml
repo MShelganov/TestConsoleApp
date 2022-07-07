@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<root>
+	<commands>
+		<command name="help" description="Display the entire list of commands."/>
+		<command name="akka" description="Akka .net test."/>
+		<command name="opencv" description="OpenCV test."/>
+		<command name="exit" description="Close the program."/>
+	</commands>
+	<dataPath>C:\tessdata</dataPath>
+</root>

@@ -1,0 +1,20 @@
+{
+  "profiles": {
+    "TestConsoleApp": {
+      "commandName": "Project"
+    },
+    "WSL": {
+      "commandName": "WSL2",
+      "environmentVariables": {},
+      "distributionName": ""
+    },
+    "WSL2 Debian": {
+      "commandName": "WSL2",
+      "environmentVariables": {},
+      "distributionName": "Debian"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
