@@ -9,8 +9,10 @@ namespace TestConsoleApp.commands
 {
     internal class OcrCommand : BaseCommand, ICommand
     {
-        private readonly string openPath = @"/home/mshelganov/orc-files/";
-        private readonly string savePath = @"/home/mshelganov/orc-files/texts";
+        //private readonly string openPath = @"/home/mshelganov/orc-files/";
+        //private readonly string savePath = @"/home/mshelganov/orc-files/texts";
+        private readonly string openPath = @"\\PC-MSHELGANOV\ocr\pdf\";
+        private readonly string savePath = @"\\PC-MSHELGANOV\ocr\pdf\texts";
         private delegate void EngineExecs<T>(Options op, string path) where T : IRecognizer;
         private Dictionary<string, EngineExecs<IRecognizer>> engines;
         public override string Name => "ocr";
@@ -24,12 +26,11 @@ namespace TestConsoleApp.commands
             engines.Add("tess", OcrReaderExec<TesseractRecognizer>);
             engines.Add("sharp", OcrReaderExec<OpenCvSharpRecognizer>);
             engines.Add("emgu", OcrReaderExec<EmguCvRecognizer>);
-
-            Log.Information("Init OCR Task!");
         }
 
         public override void Execute(string[]? subcommand = null)
         {
+            Log.Information("Execute OCR Task!");
             try
             {
                 var op = Options.Best;
@@ -183,12 +184,14 @@ namespace TestConsoleApp.commands
                     {
                         DirectoryInfo d1 = new DirectoryInfo(path); //Assuming Test is your Folder
 
-                        FileInfo[] Files = d1.GetFiles("*.jpg"); //Getting Text files
+                        FileInfo[] Files = d1.GetFiles("*.*")
+                            .Where(s => s.Extension == ".pdf" || s.Extension == ".jpg")
+                            .ToArray(); // Getting Text files
                         foreach (FileInfo file in Files)
                         {
                             try
                             {
-                                reader.Recognize(file.FullName, savePath);
+                                reader.Recognize(file, savePath);
                                 Log.Information(reader.Log, "");
                             }
                             catch (Exception fileEx)
@@ -200,11 +203,12 @@ namespace TestConsoleApp.commands
                     else
                     {
                         Console.WriteLine("-------------------------------------------------------------");
-                        string result = reader.Recognize(path);
+                        var file = new FileInfo(path);
+                        string result = reader.Recognize(file);
                         Console.WriteLine($"Saved in {savePath}");
                         Task.Run(() => SaveResult(result));
                         Console.WriteLine("-------------------------------------------------------------");
-                        Console.WriteLine("\tTask time:\n{0}", reader.Log);
+                        Console.WriteLine(reader.Log);
                     }
                 }
             }

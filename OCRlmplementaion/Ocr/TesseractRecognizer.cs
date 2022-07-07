@@ -19,13 +19,13 @@ namespace PoiskIT.Andromeda.Ocr
             engine = new TesseractEngine(Config.TRAINED_DATA_PATH, langsStr, EngineMode.Default);
         }
 
-        public string Recognize(string imageFile)
+        public string Recognize(FileInfo imageFile)
         {
             string result = string.Empty;
             try
             {
                 // Simple "eng" or multiply languages "jpn+eng"
-                using (var img = Pix.LoadFromFile(imageFile))
+                using (var img = Pix.LoadFromFile(imageFile.FullName))
                 using (var page = engine.Process(img))
                     result = page.GetText();
             }
@@ -36,7 +36,7 @@ namespace PoiskIT.Andromeda.Ocr
             return result;
         }
 
-        public void Recognize(string pathFile, string saveFile)
+        public void Recognize(FileInfo pathFile, string saveFile)
         {
             string result = Recognize(pathFile);
             var fileName = String.Format("{0}\\{1:yyyy-MM-dd hh_mm_ss_fftt}.txt", saveFile, DateTime.Now);

@@ -1,6 +1,7 @@
 ﻿using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.OCR;
+using Emgu.CV.Structure;
 using PoiskIT.Andromeda.Settings;
 using PoiskIT.Andromeda.Settings.Filters;
 using System.Diagnostics;
@@ -23,7 +24,7 @@ namespace PoiskIT.Andromeda.Ocr
             options = ocrOptions;
             _debug = debug;
             string langsStr = String.Join("+", options.Languages);
-            engine = new Emgu.CV.OCR.Tesseract(SetQuality(ocrOptions.Quality), langsStr, OcrEngineMode.LstmOnly);
+            engine = new Emgu.CV.OCR.Tesseract(SetQuality(options.Quality), langsStr, OcrEngineMode.LstmOnly);
         }
 
         private string SetQuality(QualityEnum quality)
@@ -40,16 +41,33 @@ namespace PoiskIT.Andromeda.Ocr
             return Config.TRAINED_DATA_PATH;
         }
 
-        public string Recognize(string imageFile)
+        public string Recognize(FileInfo imageFile)
         {
-            if (String.IsNullOrEmpty(imageFile))
+            if (imageFile == null)
                 throw new ArgumentNullException("imageFile");
 
             var recognizeSw = new Stopwatch();
             var filtersSw = new Stopwatch();
             string resultText = String.Empty;
+            if (imageFile.Extension == ".pdf")
+            {
+                using (var pdfReader = new PDFRenderer(imageFile.FullName, SetQuality(options.Quality), false))
+                using (var resfd = new Mat(2480, 3508, DepthType.Default, 0)) // 300 dpi
+                using (Pix imgPix = new Pix(resfd))
+                {
+                    bool success = engine.ProcessPage(imgPix, 1, "img", null, 100000, pdfReader);
+                    if (success)
+                    {
+                        engine.SetImage(imgPix);
+                        if (engine.Recognize() == 0)
+                            resultText = engine.GetUTF8Text();
+                    }
+                    else
+                        throw new Exception("[Err] ProcessPage PDFRenderer");
+                }
+            }
 
-            var source = CvInvoke.Imread(imageFile, ImreadModes.Grayscale); // Will be Dispose in FilterManager
+            var source = CvInvoke.Imread(imageFile.FullName, ImreadModes.Grayscale); // Will be Dispose in FilterManager
             using (var filters = new FilterManager())
             {
                 engine.PageSegMode = PageSegMode.SingleBlock;
@@ -75,22 +93,22 @@ namespace PoiskIT.Andromeda.Ocr
                     throw new NullReferenceException("resultMat can't be null");
                 engine.SetImage(resultMat);
                 recognizeSw.Start();
-                resultText = engine.GetUTF8Text();
+                if (engine.Recognize() == 0)
+                    resultText = engine.GetUTF8Text();
                 recognizeSw.Stop();
             }
             if (_debug)
             {
-                _log = String.Format("Filterd time: {0} sec.\n", filtersSw.Elapsed.TotalSeconds.ToString());
-                _log += String.Format("Recognize time: {0} sec.\n", recognizeSw.Elapsed.TotalSeconds.ToString());
+                _log = String.Format("\n\tFilterd time: {0} sec.", filtersSw.Elapsed.TotalSeconds.ToString());
+                _log += String.Format("\n\tRecognize time: {0} sec.", recognizeSw.Elapsed.TotalSeconds.ToString());
             }
             return resultText;
         }
 
-        public void Recognize(string pathFile, string saveFile)
+        public void Recognize(FileInfo pathFile, string saveFile)
         {
-            FileInfo info = new FileInfo(pathFile);
             string result = Recognize(pathFile);
-            var fileName = String.Format("{0}\\{1}_{2:yyyy-MM-dd hh_mm_ss_fftt}.txt", saveFile, info.Name.Split('.')[0], DateTime.Now);
+            var fileName = String.Format("{0}\\{1}_{2:yyyy-MM-dd hh_mm_ss_fftt}.txt", saveFile, pathFile.Name.Split('.')[0], DateTime.Now);
             _log += String.Format("Saved: {0} \n", fileName);
             File.WriteAllText(fileName, result, System.Text.Encoding.Unicode);
         }

@@ -2,8 +2,8 @@
 {
     public interface IRecognizer : IDisposable
     {
-        public string Recognize(string pathFile);
-        public void Recognize(string pathFile, string saveFile);
+        public string Recognize(FileInfo pathFile);
+        public void Recognize(FileInfo pathFile, string saveFile);
         public string Log { get; }
     }
 }
