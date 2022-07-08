@@ -7,4 +7,8 @@
 		<command name="exit" description="Close the program."/>
 	</commands>
 	<dataPath>C:\tessdata</dataPath>
+	<imageSize>
+		<width>2480</width>
+		<height>3508</height>
+	</imageSize>
 </root>

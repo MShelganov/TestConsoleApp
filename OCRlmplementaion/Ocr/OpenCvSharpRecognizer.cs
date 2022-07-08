@@ -122,6 +122,16 @@ namespace PoiskIT.Andromeda.Ocr
             File.WriteAllText(fileName, result, System.Text.Encoding.Unicode);
         }
 
+        public string Recognize(byte[] image)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Recognize(byte[] image, string nameFile, string pathFile)
+        {
+            throw new NotImplementedException();
+        }
+
         public string Log
         {
             get => "";

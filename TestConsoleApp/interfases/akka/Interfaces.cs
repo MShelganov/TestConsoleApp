@@ -1,4 +1,4 @@
-﻿namespace TestConsoleApp.interfases.akka
+﻿namespace PoiskIT.Andromeda.interfases.akka
 {
 
     public interface IEmailNotification

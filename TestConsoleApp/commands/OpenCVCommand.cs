@@ -1,7 +1,7 @@
-﻿using TestConsoleApp.interfases;
+﻿using PoiskIT.Andromeda.interfases;
 using System.Diagnostics;
 
-namespace TestConsoleApp.commands
+namespace PoiskIT.Andromeda.commands
 {
     internal class OpenCVCommand : BaseCommand, ICommand
     {

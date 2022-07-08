@@ -1,8 +1,8 @@
 ﻿using Akka.Actor;
-using TestConsoleApp.interfases.akka;
-using TestConsoleApp.Akka.Test.Items;
+using PoiskIT.Andromeda.interfases.akka;
+using PoiskIT.Andromeda.Akka.Test.Items;
 
-namespace TestConsoleApp.Akka.Test.Actors
+namespace PoiskIT.Andromeda.Akka.Test.Actors
 {
     /// <summary>
     /// The class simple actor. 

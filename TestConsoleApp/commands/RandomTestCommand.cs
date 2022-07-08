@@ -1,8 +1,8 @@
 ﻿using System.Text;
-using TestConsoleApp.interfases;
+using PoiskIT.Andromeda.interfases;
 using PoiskIT.Andromeda.Metrics;
 
-namespace TestConsoleApp.commands
+namespace PoiskIT.Andromeda.commands
 {
     internal class RandomTestCommand : BaseCommand, ICommand
     {

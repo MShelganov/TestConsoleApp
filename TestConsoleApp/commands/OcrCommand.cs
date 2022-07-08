@@ -1,12 +1,14 @@
-﻿using PoiskIT.Andromeda.Metrics;
+﻿using PoiskIT.Andromeda.interfases;
+using PoiskIT.Andromeda.Metrics;
 using PoiskIT.Andromeda.Ocr;
 using PoiskIT.Andromeda.Settings;
+using PoiskIT.Andromeda.Utils;
 using Serilog;
 using System.Diagnostics;
-using TestConsoleApp.interfases;
 
-namespace TestConsoleApp.commands
+namespace PoiskIT.Andromeda.commands
 {
+    // ocr -qd -lru -r
     internal class OcrCommand : BaseCommand, ICommand
     {
         //private readonly string openPath = @"/home/mshelganov/orc-files/";
@@ -184,19 +186,37 @@ namespace TestConsoleApp.commands
                     {
                         DirectoryInfo d1 = new DirectoryInfo(path); //Assuming Test is your Folder
 
-                        FileInfo[] Files = d1.GetFiles("*.*")
-                            .Where(s => s.Extension == ".pdf" || s.Extension == ".jpg")
-                            .ToArray(); // Getting Text files
-                        foreach (FileInfo file in Files)
+                        FileInfo[] jpgs = d1.GetFiles("*.*")
+                            .Where(s => s.Extension == ".png" || s.Extension == ".jpg")
+                            .ToArray();
+                        foreach (FileInfo jpg in jpgs)
                         {
                             try
                             {
-                                reader.Recognize(file, savePath);
+                                reader.Recognize(jpg, savePath);
                                 Log.Information(reader.Log, "");
                             }
                             catch (Exception fileEx)
                             {
-                                Log.Error(fileEx, file.FullName);
+                                Log.Error(fileEx, jpg.FullName);
+                            }
+                        }
+                        FileInfo[] pdfs = d1.GetFiles("*.pdf");
+                        foreach (FileInfo pdf in pdfs)
+                        {
+                            try
+                            {
+                                var listPages = PdfConverter.Convert(pdf.FullName);
+                                for (var i = 0; i < listPages.Count; i++)
+                                {
+                                    string pdfname = pdf.Name.Split('.')[0];
+                                    //reader.Recognize(listPages[i], $"{pdfname}.Page.{i}", savePath);
+                                    Log.Information(reader.Log);
+                                }
+                            }
+                            catch (Exception fileEx)
+                            {
+                                Log.Error(fileEx, pdf.FullName);
                             }
                         }
                     }
