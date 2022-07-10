@@ -13,8 +13,10 @@ namespace PoiskIT.Andromeda.commands
     {
         //private readonly string openPath = @"/home/mshelganov/orc-files/";
         //private readonly string savePath = @"/home/mshelganov/orc-files/texts";
-        private readonly string openPath = @"\\PC-MSHELGANOV\ocr\pdf\";
-        private readonly string savePath = @"\\PC-MSHELGANOV\ocr\pdf\texts";
+        //private readonly string openPath = @"\\PC-MSHELGANOV\ocr\pdf\";
+        //private readonly string savePath = @"\\PC-MSHELGANOV\ocr\pdf\texts";
+        private readonly string openPath = @"G:\temp\pdf\";
+        private readonly string savePath = @"G:\temp\pdf\texts";
         private delegate void EngineExecs<T>(Options op, string path) where T : IRecognizer;
         private Dictionary<string, EngineExecs<IRecognizer>> engines;
         public override string Name => "ocr";
@@ -206,11 +208,11 @@ namespace PoiskIT.Andromeda.commands
                         {
                             try
                             {
-                                var listPages = PdfConverter.Convert(pdf.FullName);
+                                var listPages = PdfConverter.Convert(pdf.FullName, savePath);
                                 for (var i = 0; i < listPages.Count; i++)
                                 {
                                     string pdfname = pdf.Name.Split('.')[0];
-                                    //reader.Recognize(listPages[i], $"{pdfname}.Page.{i}", savePath);
+                                    reader.Recognize(listPages[i], $"{pdfname}.Page.{i}", savePath);
                                     Log.Information(reader.Log);
                                 }
                             }

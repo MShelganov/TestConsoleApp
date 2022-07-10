@@ -22,42 +22,43 @@ namespace PoiskIT.Andromeda.Utils
         /// </summary>
         /// <param name="inputFilePath"></param>
         /// <param name="outputFolder"></param>
-        /// <param name="jpegQuality"></param>
         /// <returns></returns>
-        public static void Convert(string inputFilePath, string outputFolder, int jpegQuality)
+        public static List<byte[]> Convert(string inputFilePath, string outputFolder)
         {
-            var jpegDevice = new GhostscriptJpegDevice(GhostscriptJpegDeviceType.Jpeg)
-            {
-                GraphicsAlphaBits = GhostscriptImageDeviceAlphaBits.V_4,
-                TextAlphaBits = GhostscriptImageDeviceAlphaBits.V_4,
-                ResolutionXY = new GhostscriptImageDeviceResolution(PDF_RESOLUTION_DPI, PDF_RESOLUTION_DPI),
-                JpegQuality = jpegQuality
-            };
-            jpegDevice.InputFiles.Add(inputFilePath);
-            var fileName = Path.GetFileNameWithoutExtension(inputFilePath);
+            //var jpegDevice = new GhostscriptJpegDevice(GhostscriptJpegDeviceType.Jpeg)
+            //{
+            //    GraphicsAlphaBits = GhostscriptImageDeviceAlphaBits.V_4,
+            //    TextAlphaBits = GhostscriptImageDeviceAlphaBits.V_4,
+            //    ResolutionXY = new GhostscriptImageDeviceResolution(PDF_RESOLUTION_DPI, PDF_RESOLUTION_DPI),
+            //    JpegQuality = jpegQuality
+            //};
+            //jpegDevice.InputFiles.Add(inputFilePath);
+            //var fileName = Path.GetFileNameWithoutExtension(inputFilePath);
 
-            jpegDevice.OutputPath = Path.Combine(outputFolder, fileName + GHOSTSCRIPT_OUTPUT_PATTERN);
+            //jpegDevice.OutputPath = Path.Combine(outputFolder, fileName + GHOSTSCRIPT_OUTPUT_PATTERN);
 
-            // GO! GhostScript silently puts all converted pages in the specified folder. There is no other feedback.
-            jpegDevice.Process();
+            //// GO! GhostScript silently puts all converted pages in the specified folder. There is no other feedback.
+            //jpegDevice.Process();
 
+            List<byte[]> imageBytes = new List<byte[]>();
             var settings = new MagickReadSettings();
             // Settings the density to 300 dpi will create an image with a better quality
             settings.Density = new Density(PDF_RESOLUTION_DPI, PDF_RESOLUTION_DPI);
-
             using (var images = new MagickImageCollection())
             {
                 // Add all the pages of the pdf file to the collection
-                images.Read(@"c:\path\to\Snakeware.pdf", settings);
+                images.Read(inputFilePath, settings);
 
                 var page = 1;
                 foreach (var image in images)
                 {
                     // Write page to file that contains the page number
-                    image.Write(@"c:\path\to\Snakeware.Page" + page + ".png");
+                    //image.Write($"{outputFolder}.Page.{page}.png");
+                    imageBytes.Add(image.ToByteArray(MagickFormat.Png32));
                     page++;
                 }
             }
+            return imageBytes;
         }
     }
 }
