@@ -150,7 +150,7 @@ namespace PoiskIT.Andromeda.Ocr
         public void Recognize(byte[] image, string nameFile, string pathFile)
         {
             string result = Recognize(image);
-            var fileName = String.Format("{0}\\{1}.{2:yyyy-MM-dd hh_mm_ss_fftt}.txt", pathFile, nameFile, DateTime.Now);
+            var fileName = String.Format("{0}\\{1}.txt", pathFile, nameFile, DateTime.Now);
             _log += String.Format("Saved: {0} \n", fileName);
             File.WriteAllText(fileName, result, System.Text.Encoding.Unicode);
         }

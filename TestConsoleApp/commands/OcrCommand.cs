@@ -11,12 +11,12 @@ namespace PoiskIT.Andromeda.commands
     // ocr -qd -lru -r
     internal class OcrCommand : BaseCommand, ICommand
     {
-        //private readonly string openPath = @"/home/mshelganov/orc-files/";
-        //private readonly string savePath = @"/home/mshelganov/orc-files/texts";
+        private readonly string openPath = @"/home/mshelganov/pdf/";
+        private readonly string savePath = @"/home/mshelganov/pdf/texts";
         //private readonly string openPath = @"\\PC-MSHELGANOV\ocr\pdf\";
         //private readonly string savePath = @"\\PC-MSHELGANOV\ocr\pdf\texts";
-        private readonly string openPath = @"G:\temp\pdf\";
-        private readonly string savePath = @"G:\temp\pdf\texts";
+        //private readonly string openPath = @"G:\temp\pdf\";
+        //private readonly string savePath = @"G:\temp\pdf\texts";
         private delegate void EngineExecs<T>(Options op, string path) where T : IRecognizer;
         private Dictionary<string, EngineExecs<IRecognizer>> engines;
         public override string Name => "ocr";
