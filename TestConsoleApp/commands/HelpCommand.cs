@@ -1,6 +1,6 @@
-﻿using TestConsoleApp.interfases;
+﻿using PoiskIT.Andromeda.interfases;
 
-namespace TestConsoleApp.commands
+namespace PoiskIT.Andromeda.commands
 {
     internal class HelpCommand : BaseCommand, ICommand
     {

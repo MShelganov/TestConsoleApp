@@ -1,6 +1,7 @@
 ﻿using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.OCR;
+using Emgu.CV.Structure;
 using PoiskIT.Andromeda.Settings;
 using PoiskIT.Andromeda.Settings.Filters;
 using System.Diagnostics;
@@ -23,7 +24,7 @@ namespace PoiskIT.Andromeda.Ocr
             options = ocrOptions;
             _debug = debug;
             string langsStr = String.Join("+", options.Languages);
-            engine = new Emgu.CV.OCR.Tesseract(SetQuality(ocrOptions.Quality), langsStr, OcrEngineMode.LstmOnly);
+            engine = new Emgu.CV.OCR.Tesseract(SetQuality(options.Quality), langsStr, OcrEngineMode.LstmOnly);
         }
 
         private string SetQuality(QualityEnum quality)
@@ -40,16 +41,18 @@ namespace PoiskIT.Andromeda.Ocr
             return Config.TRAINED_DATA_PATH;
         }
 
-        public string Recognize(string imageFile)
+        public string Recognize(FileInfo imageInfo)
         {
-            if (String.IsNullOrEmpty(imageFile))
+            if (imageInfo == null)
                 throw new ArgumentNullException("imageFile");
 
             var recognizeSw = new Stopwatch();
             var filtersSw = new Stopwatch();
             string resultText = String.Empty;
 
-            var source = CvInvoke.Imread(imageFile, ImreadModes.Grayscale); // Will be Dispose in FilterManager
+            var source = CvInvoke.Imread(imageInfo.FullName, ImreadModes.Grayscale); // Will be Dispose in FilterManager
+            if (source == null)
+                throw new ArgumentNullException(nameof(imageInfo));
             using (var filters = new FilterManager())
             {
                 engine.PageSegMode = PageSegMode.SingleBlock;
@@ -75,22 +78,79 @@ namespace PoiskIT.Andromeda.Ocr
                     throw new NullReferenceException("resultMat can't be null");
                 engine.SetImage(resultMat);
                 recognizeSw.Start();
-                resultText = engine.GetUTF8Text();
+                if (engine.Recognize() == 0)
+                    resultText = engine.GetUTF8Text();
                 recognizeSw.Stop();
             }
             if (_debug)
             {
-                _log = String.Format("Filterd time: {0} sec.\n", filtersSw.Elapsed.TotalSeconds.ToString());
-                _log += String.Format("Recognize time: {0} sec.\n", recognizeSw.Elapsed.TotalSeconds.ToString());
+                _log = String.Format("\n\tFilterd time: {0} sec.", filtersSw.Elapsed.TotalSeconds.ToString());
+                _log += String.Format("\n\tRecognize time: {0} sec.", recognizeSw.Elapsed.TotalSeconds.ToString());
             }
             return resultText;
         }
 
-        public void Recognize(string pathFile, string saveFile)
+        public void Recognize(FileInfo imageInfo, string pathFile)
         {
-            FileInfo info = new FileInfo(pathFile);
-            string result = Recognize(pathFile);
-            var fileName = String.Format("{0}\\{1}_{2:yyyy-MM-dd hh_mm_ss_fftt}.txt", saveFile, info.Name.Split('.')[0], DateTime.Now);
+            string result = Recognize(imageInfo);
+            var fileName = String.Format("{0}\\{1}.{2:yyyy-MM-dd hh_mm_ss_fftt}.txt", pathFile, imageInfo.Name.Split('.')[0], DateTime.Now);
+            _log += String.Format("Saved: {0} \n", fileName);
+            File.WriteAllText(fileName, result, System.Text.Encoding.Unicode);
+        }
+
+        public string Recognize(byte[] image)
+        {
+            if (image == null)
+                throw new ArgumentNullException(nameof(image));
+
+            var recognizeSw = new Stopwatch();
+            var filtersSw = new Stopwatch();
+            string resultText = String.Empty;
+
+            using (var bitmap = new Mat())
+            using (var filters = new FilterManager())
+            {
+                engine.PageSegMode = PageSegMode.SingleBlock;
+                if (options.IsScaling)
+                    filters.Add(new Resize());
+
+                if (options.IsDenoising)
+                    filters.Add(new Denoising());
+
+                if (options.IsGaussianWeighted)
+                    filters.Add(new GaussianWeighted());
+
+                if (options.IsFilter2D)
+                    filters.Add(new Filter2D());
+
+                //if (options.IsBilateral)
+                //    filters.Add(new Bilateral());
+
+                CvInvoke.Imdecode(image, ImreadModes.Grayscale, bitmap);
+
+                //filtersSw.Start();
+                //var resultMat = filters.Processing(bitmap.Mat);
+                //filtersSw.Stop();
+                //if (resultMat == null)
+                //    throw new NullReferenceException("resultMat can't be null");
+                engine.SetImage(bitmap);
+                recognizeSw.Start();
+                //if (engine.Recognize() == 0)
+                    resultText = engine.GetUTF8Text();
+                recognizeSw.Stop();
+            }
+            if (_debug)
+            {
+                _log = String.Format("\n\tFilterd time: {0} sec.", filtersSw.Elapsed.TotalSeconds.ToString());
+                _log += String.Format("\n\tRecognize time: {0} sec.", recognizeSw.Elapsed.TotalSeconds.ToString());
+            }
+            return resultText;
+        }
+
+        public void Recognize(byte[] image, string nameFile, string pathFile)
+        {
+            string result = Recognize(image);
+            var fileName = String.Format("{0}\\{1}.txt", pathFile, nameFile, DateTime.Now);
             _log += String.Format("Saved: {0} \n", fileName);
             File.WriteAllText(fileName, result, System.Text.Encoding.Unicode);
         }

@@ -1,16 +1,22 @@
-﻿using PoiskIT.Andromeda.Metrics;
+﻿using PoiskIT.Andromeda.interfases;
+using PoiskIT.Andromeda.Metrics;
 using PoiskIT.Andromeda.Ocr;
 using PoiskIT.Andromeda.Settings;
+using PoiskIT.Andromeda.Utils;
 using Serilog;
 using System.Diagnostics;
-using TestConsoleApp.interfases;
 
-namespace TestConsoleApp.commands
+namespace PoiskIT.Andromeda.commands
 {
+    // ocr -qd -lru -r
     internal class OcrCommand : BaseCommand, ICommand
     {
-        private readonly string openPath = @"/home/mshelganov/orc-files/";
-        private readonly string savePath = @"/home/mshelganov/orc-files/texts";
+        private readonly string openPath = @"/home/mshelganov/pdf/";
+        private readonly string savePath = @"/home/mshelganov/pdf/texts";
+        //private readonly string openPath = @"\\PC-MSHELGANOV\ocr\pdf\";
+        //private readonly string savePath = @"\\PC-MSHELGANOV\ocr\pdf\texts";
+        //private readonly string openPath = @"G:\temp\pdf\";
+        //private readonly string savePath = @"G:\temp\pdf\texts";
         private delegate void EngineExecs<T>(Options op, string path) where T : IRecognizer;
         private Dictionary<string, EngineExecs<IRecognizer>> engines;
         public override string Name => "ocr";
@@ -24,12 +30,11 @@ namespace TestConsoleApp.commands
             engines.Add("tess", OcrReaderExec<TesseractRecognizer>);
             engines.Add("sharp", OcrReaderExec<OpenCvSharpRecognizer>);
             engines.Add("emgu", OcrReaderExec<EmguCvRecognizer>);
-
-            Log.Information("Init OCR Task!");
         }
 
         public override void Execute(string[]? subcommand = null)
         {
+            Log.Information("Execute OCR Task!");
             try
             {
                 var op = Options.Best;
@@ -183,28 +188,49 @@ namespace TestConsoleApp.commands
                     {
                         DirectoryInfo d1 = new DirectoryInfo(path); //Assuming Test is your Folder
 
-                        FileInfo[] Files = d1.GetFiles("*.jpg"); //Getting Text files
-                        foreach (FileInfo file in Files)
+                        FileInfo[] jpgs = d1.GetFiles("*.*")
+                            .Where(s => s.Extension == ".png" || s.Extension == ".jpg")
+                            .ToArray();
+                        foreach (FileInfo jpg in jpgs)
                         {
                             try
                             {
-                                reader.Recognize(file.FullName, savePath);
+                                reader.Recognize(jpg, savePath);
                                 Log.Information(reader.Log, "");
                             }
                             catch (Exception fileEx)
                             {
-                                Log.Error(fileEx, file.FullName);
+                                Log.Error(fileEx, jpg.FullName);
+                            }
+                        }
+                        FileInfo[] pdfs = d1.GetFiles("*.pdf");
+                        foreach (FileInfo pdf in pdfs)
+                        {
+                            try
+                            {
+                                var listPages = PdfConverter.Convert(pdf.FullName, savePath);
+                                for (var i = 0; i < listPages.Count; i++)
+                                {
+                                    string pdfname = pdf.Name.Split('.')[0];
+                                    reader.Recognize(listPages[i], $"{pdfname}.Page.{i}", savePath);
+                                    Log.Information(reader.Log);
+                                }
+                            }
+                            catch (Exception fileEx)
+                            {
+                                Log.Error(fileEx, pdf.FullName);
                             }
                         }
                     }
                     else
                     {
                         Console.WriteLine("-------------------------------------------------------------");
-                        string result = reader.Recognize(path);
+                        var file = new FileInfo(path);
+                        string result = reader.Recognize(file);
                         Console.WriteLine($"Saved in {savePath}");
                         Task.Run(() => SaveResult(result));
                         Console.WriteLine("-------------------------------------------------------------");
-                        Console.WriteLine("\tTask time:\n{0}", reader.Log);
+                        Console.WriteLine(reader.Log);
                     }
                 }
             }

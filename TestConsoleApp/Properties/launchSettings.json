@@ -13,8 +13,13 @@
       "environmentVariables": {},
       "distributionName": "Debian"
     },
+    "WSL : Ubuntu 20.04": {
+      "commandName": "WSL",
+      "distributionName": "Ubuntu-20.04"
+    },
     "Docker": {
-      "commandName": "Docker"
+      "commandName": "Docker",
+      "distributionName": "Ubuntu-20.04"
     }
   }
 }

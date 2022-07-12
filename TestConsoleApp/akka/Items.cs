@@ -1,6 +1,6 @@
-﻿using TestConsoleApp.interfases.akka;
+﻿using PoiskIT.Andromeda.interfases.akka;
 
-namespace TestConsoleApp.Akka.Test.Items
+namespace PoiskIT.Andromeda.Akka.Test.Items
 {
     /// <summary>
     /// The type of messages for actor's reaction.

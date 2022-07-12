@@ -90,14 +90,14 @@ namespace PoiskIT.Andromeda.Ocr
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public string Recognize(string pathFile)
+        public string Recognize(FileInfo pathFile)
         {
             string result = string.Empty;
             OpenCvSharp.Rect[] textLocations;
             string?[] componentTexts;
             float[] confidences;
             // Always remember to release Mat instances! The using syntax is useful.
-            using (var img = Cv2.ImRead(pathFile, ImreadModes.Grayscale)) // Should I use Grayscale instant?
+            using (var img = Cv2.ImRead(pathFile.FullName, ImreadModes.Grayscale)) // Should I use Grayscale instant?
             //using (var kernel = new Mat(3, 3, MatType.CV_32F, ))
             //using (var denoise = new Mat())
             //using (var blur = new Mat())
@@ -115,11 +115,21 @@ namespace PoiskIT.Andromeda.Ocr
             return result;
         }
 
-        void IRecognizer.Recognize(string pathFile, string saveFile)
+        public void Recognize(FileInfo pathFile, string saveFile)
         {
             string result = Recognize(pathFile);
             var fileName = String.Format("{0}\\{1:yyyy-MM-dd hh_mm_ss_fftt}.txt", saveFile, DateTime.Now);
             File.WriteAllText(fileName, result, System.Text.Encoding.Unicode);
+        }
+
+        public string Recognize(byte[] image)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Recognize(byte[] image, string nameFile, string pathFile)
+        {
+            throw new NotImplementedException();
         }
 
         public string Log

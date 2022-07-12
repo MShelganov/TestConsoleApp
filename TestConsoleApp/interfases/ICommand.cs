@@ -1,4 +1,4 @@
-﻿namespace TestConsoleApp.interfases
+﻿namespace PoiskIT.Andromeda.interfases
 {
     internal interface ICommand
     {

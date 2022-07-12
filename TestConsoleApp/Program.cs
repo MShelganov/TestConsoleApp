@@ -1,10 +1,9 @@
-﻿using Serilog;
-using Serilog.Sinks.File;
+﻿using PoiskIT.Andromeda.commands;
+using PoiskIT.Andromeda.interfases;
+using Serilog;
 using System.Text;
-using TestConsoleApp.commands;
-using TestConsoleApp.interfases;
 
-namespace ConsoleApp.Akka.Test
+namespace PoiskIT.Andromeda.Test
 {
     class Program
     {

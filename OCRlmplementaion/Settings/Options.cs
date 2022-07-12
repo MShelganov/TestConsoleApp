@@ -8,6 +8,8 @@
     }
     public class Options
     {
+        public int Width { get; set; } = 2480;
+        public int Height { get; set; } = 3508;
         public string[] Languages { get; set; }
         public QualityEnum Quality { get; set; }
         public bool IsScaling { get; set; }

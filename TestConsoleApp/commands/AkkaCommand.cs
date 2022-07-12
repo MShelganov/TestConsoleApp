@@ -1,13 +1,13 @@
 ﻿using Akka.Actor;
 using Akka.DI.Core;
 using Akka.DI.Extensions.DependencyInjection;
-using TestConsoleApp.interfases;
-using TestConsoleApp.interfases.akka;
-using TestConsoleApp.Akka.Test.Actors;
-using TestConsoleApp.Akka.Test.Items;
+using PoiskIT.Andromeda.interfases;
+using PoiskIT.Andromeda.interfases.akka;
+using PoiskIT.Andromeda.Akka.Test.Actors;
+using PoiskIT.Andromeda.Akka.Test.Items;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace TestConsoleApp.commands
+namespace PoiskIT.Andromeda.commands
 {
     internal class AkkaCommand : BaseCommand, ICommand
     {
