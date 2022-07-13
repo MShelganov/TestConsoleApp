@@ -11,8 +11,8 @@ namespace PoiskIT.Andromeda.commands
     // ocr -qd -lru -r
     internal class OcrCommand : BaseCommand, ICommand
     {
-        private readonly string openPath = @"/home/mshelganov/pdf/";
-        private readonly string savePath = @"/home/mshelganov/pdf/texts";
+        private readonly string openPath = @"/data/pdf/";
+        private readonly string savePath = @"/data/pdf/texts";
         //private readonly string openPath = @"\\PC-MSHELGANOV\ocr\pdf\";
         //private readonly string savePath = @"\\PC-MSHELGANOV\ocr\pdf\texts";
         //private readonly string openPath = @"G:\temp\pdf\";

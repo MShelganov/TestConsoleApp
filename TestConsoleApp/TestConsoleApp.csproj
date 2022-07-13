@@ -17,8 +17,8 @@
     <PackageReference Include="Emgu.CV.runtime.ubuntu.20.04-x64" Version="4.5.5.4823" />
     <PackageReference Include="Emgu.CV.runtime.windows" Version="4.5.5.4823" />
     <PackageReference Include="GhostScript.NetCore" Version="1.0.1" />
-    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="11.2.1" />
-    <PackageReference Include="Magick.NET.Core" Version="11.2.0" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="11.3.0" />
+    <PackageReference Include="Magick.NET.Core" Version="11.3.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.16.1" />
