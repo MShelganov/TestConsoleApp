@@ -12,7 +12,8 @@
 <p align="right">(<a href="#top">наверх</a>)</p>
 
 
-### <a name="about-project">Проект Foodgram собирает рецепты пользователей на различные блюда.</a>
+### <a name="about-project">Тестовый проект.</a>
+Собирает в себе такие библиотеки как Akka.net, EmguCv (Orc Tesseract). Список со временем будет пополняться.
 
 (![Project](https://github.com/MShelganov/TestConsoleApp))
 
