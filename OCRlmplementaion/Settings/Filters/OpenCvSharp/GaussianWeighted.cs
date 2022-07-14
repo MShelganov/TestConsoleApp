@@ -1,9 +1,9 @@
-﻿using System.Drawing;
-using Emgu.CV;
+﻿using OpenCvSharp;
+using PoiskIT.Andromeda.Settings.Filters;
 
-namespace PoiskIT.Andromeda.Settings.Filters
+namespace OCRlmplementaion.Settings.Filters.OpenCvSharp
 {
-    public class GaussianWeighted : IFilter
+    public class GaussianWeighted : IFilter<Mat>
     {
         private Size _size;
         private double _sigma;
@@ -24,8 +24,8 @@ namespace PoiskIT.Andromeda.Settings.Filters
         }
         public void Exec(Mat src, Mat dst)
         {
-            CvInvoke.GaussianBlur(src, dst, _size, _sigma);
-            CvInvoke.AddWeighted(src, _alpha, dst, _beta, _gamma, dst);
+            Cv2.GaussianBlur(src, dst, _size, _sigma);
+            Cv2.AddWeighted(src, _alpha, dst, _beta, _gamma, dst);
         }
     }
 }

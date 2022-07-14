@@ -1,8 +1,8 @@
 ﻿using Emgu.CV;
 
-namespace PoiskIT.Andromeda.Settings.Filters
+namespace PoiskIT.Andromeda.Settings.Filters.EmguCv
 {
-    public class Filter2D : IFilter
+    public class Filter2D : IFilter<Mat>
     {
         public string Name { get; } = "Filter2D";
         public void Exec(Mat src, Mat dst)

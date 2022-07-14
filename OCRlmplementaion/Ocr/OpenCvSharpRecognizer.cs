@@ -15,43 +15,23 @@ namespace PoiskIT.Andromeda.Ocr
                 ocrOptions = Options.Default;
             options = ocrOptions;
             string langsStr = String.Join("+", options.Languages);
-            engine = OpenCvSharp.Text.OCRTesseract.Create(Config.TRAINED_DATA_PATH, langsStr, null, 1, 3);
+            engine = OpenCvSharp.Text.OCRTesseract.Create(SetQuality(options.Quality), langsStr, null, 1, 3);
 
         }
-    
-        #region Filters
-        private void Denoising(Mat src, Mat dst)
+
+        private string SetQuality(QualityEnum quality)
         {
-            if (!options.IsDenoising)
-                dst = src;
-            else
-                Cv2.FastNlMeansDenoising(src, dst);
-        }
-        private void Filter2D(Mat src, Mat dst)
-        {
-            if (!options.IsFilter2D)
-                dst = src;
-            //else
-            //    Cv2.Filter2D(src, dst);
-        }
-        private void GaussianWeighted(Mat src, Mat dst, Mat weighted)
-        {
-            if (!options.IsGaussianWeighted)
-                weighted = src;
-            else
+            switch (quality)
             {
-                Cv2.GaussianBlur(src, dst, new OpenCvSharp.Size(5, 5), 0);
-                Cv2.AddWeighted(src, 1.5, dst, -.5, 0, weighted);
+                case QualityEnum.def:
+                    return Config.TRAINED_DATA_PATH;
+                case QualityEnum.fast:
+                    return Config.TRAINED_DATA_FAST_PATH;
+                case QualityEnum.best:
+                    return Config.TRAINED_DATA_BEST_PATH;
             }
+            return Config.TRAINED_DATA_PATH;
         }
-        private void Bilateral(Mat src, Mat dst)
-        {
-            if (!options.IsBilateral)
-                dst = src;
-            else
-                Cv2.BilateralFilter(src, dst, 15, 80, 80); // 5, 10, 2
-        }
-        #endregion Filters
 
         /// <summary>
         /// Aligning images with template and keypoint matching .
@@ -98,17 +78,7 @@ namespace PoiskIT.Andromeda.Ocr
             float[] confidences;
             // Always remember to release Mat instances! The using syntax is useful.
             using (var img = Cv2.ImRead(pathFile.FullName, ImreadModes.Grayscale)) // Should I use Grayscale instant?
-            //using (var kernel = new Mat(3, 3, MatType.CV_32F, ))
-            //using (var denoise = new Mat())
-            //using (var blur = new Mat())
-            //using (var weighted = new Mat())
-            //using (var bilateral = new Mat())
             {
-                //Denoising(img, denoise);
-                //Filter2D(denoise, );
-                //GaussianWeighted(denoise, blur, weighted);
-                //Bilateral(weighted, bilateral);
-                //Cv2.Sobel();
                 engine.Run(img, out result, out textLocations, out componentTexts, out confidences, OpenCvSharp.Text.ComponentLevels.TextLine);
             }
 

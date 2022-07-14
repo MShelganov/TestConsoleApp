@@ -1,8 +1,9 @@
-﻿using Emgu.CV;
+﻿using OpenCvSharp;
+using PoiskIT.Andromeda.Settings.Filters;
 
-namespace PoiskIT.Andromeda.Settings.Filters
+namespace OCRlmplementaion.Settings.Filters.OpenCvSharp
 {
-    public class Denoising : IFilter
+    public class Denoising : IFilter<Mat>
     {
         private float _h;
         private int _templateWindowSize;
@@ -17,7 +18,7 @@ namespace PoiskIT.Andromeda.Settings.Filters
         }
         public void Exec(Mat src, Mat dst)
         {
-            CvInvoke.FastNlMeansDenoising(src, dst, _h, _templateWindowSize, _searchWindowSize);
+            Cv2.FastNlMeansDenoising(src, dst, _h, _templateWindowSize, _searchWindowSize);
         }
     }
 }

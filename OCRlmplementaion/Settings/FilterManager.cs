@@ -1,21 +1,20 @@
-﻿using Emgu.CV;
-using PoiskIT.Andromeda.Settings.Filters;
+﻿using PoiskIT.Andromeda.Settings.Filters;
 
 namespace PoiskIT.Andromeda.Settings
 {
-    public class FilterManager : IDisposable
+    public class FilterManager<T> : IDisposable where T : class, IDisposable, new()
     {
         private bool _disposed;
-        private List<Mat> mats;
-        private List<IFilter> filters;
+        private List<T> mats;
+        private List<IFilter<T>> filters;
 
         public FilterManager()
         {
-            mats = new List<Mat>();
-            filters = new List<IFilter>();
+            mats = new List<T>();
+            filters = new List<IFilter<T>>();
         }
 
-        public void Add(IFilter filter)
+        public void Add(IFilter<T> filter)
         {
             if (filter == null)
                 return;
@@ -24,20 +23,22 @@ namespace PoiskIT.Andromeda.Settings
                 filters.Add(filter);
         }
 
-        public Mat Processing(Mat src)
+        public T Processing(T src)
         {
             mats.Add(src);
-            foreach (IFilter filter in filters)
+            foreach (IFilter<T> filter in filters)
             {
                 var last = mats.Last();
-                var filterMat = new Mat(last.Size, last.Depth, last.NumberOfChannels);
+
+                //var filterMat = new Mat(last.Size, last.Depth, last.NumberOfChannels);
+                T filterMat = new T();
                 filter.Exec(last, filterMat);
                 mats.Add(filterMat);
             }
             return mats.Last();
         }
 
-        public void SaveFiltered(string? path)
+        public void SaveFiltered(string? path, Func<T, string, bool> Save)
         {
             if (string.IsNullOrEmpty(path))
                 return;
@@ -45,7 +46,9 @@ namespace PoiskIT.Andromeda.Settings
             var now = DateTime.Now;
             for (int i = 0; i < mats.Count; i++)
                 if (i != 0)
-                    mats[i].Save(String.Format("{0}/filtered/{1}.{2:yyyy-MM-dd hh_mm_ss_fftt}{3}", path, filters[i-1].Name, now, ".jpg"));
+                    if (!Save(mats[i], String.Format("{0}/filtered/{1}.{2:yyyy-MM-dd hh_mm_ss_fftt}{3}", path, filters[i - 1].Name, now, ".jpg")))
+                        throw new Exception(String.Format("{0} not saved", mats[i]));
+                
         }
 
         public void Dispose()
