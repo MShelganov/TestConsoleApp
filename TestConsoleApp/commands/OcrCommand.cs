@@ -5,14 +5,16 @@ using PoiskIT.Andromeda.Settings;
 using PoiskIT.Andromeda.Utils;
 using Serilog;
 using System.Diagnostics;
+using System.Configuration;
 
 namespace PoiskIT.Andromeda.commands
 {
-    // ocr -qd -lru -r
+    // ocr -qd -lall -r -fsblg
+    // ocr sharp -qd -lall -r -fsblg
     internal class OcrCommand : BaseCommand, ICommand
     {
         private readonly string openPath = @"/data/pdf/";
-        private readonly string savePath = @"/data/pdf/texts";
+        private readonly string outputfilder = @"results";
         //private readonly string openPath = @"\\PC-MSHELGANOV\ocr\pdf\";
         //private readonly string savePath = @"\\PC-MSHELGANOV\ocr\pdf\texts";
         //private readonly string openPath = @"G:\temp\pdf\";
@@ -26,6 +28,21 @@ namespace PoiskIT.Andromeda.commands
 
         public OcrCommand()
         {
+            var appSettings = ConfigurationManager.AppSettings;
+            if (appSettings != null && appSettings.Count > 0)
+            {
+                if (IsUnix())
+                {
+                    if (appSettings.AllKeys.Contains("openPathUnix"))
+                        openPath = appSettings["openPathUnix"].ToString();
+                }
+                else
+                {
+                    if (appSettings.AllKeys.Contains("openPathWin"))
+                        openPath = appSettings["openPathWin"].ToString();
+                }
+
+            }
             engines = new Dictionary<string, EngineExecs<IRecognizer>>();
             engines.Add("tess", OcrReaderExec<TesseractRecognizer>);
             engines.Add("sharp", OcrReaderExec<OpenCvSharpRecognizer>);
@@ -189,13 +206,14 @@ namespace PoiskIT.Andromeda.commands
                         DirectoryInfo d1 = new DirectoryInfo(path); //Assuming Test is your Folder
 
                         FileInfo[] jpgs = d1.GetFiles("*.*")
-                            .Where(s => s.Extension == ".png" || s.Extension == ".jpg")
+                            .Where(s => s.Extension == ".png"
+                                     || s.Extension == ".jpg")
                             .ToArray();
                         foreach (FileInfo jpg in jpgs)
                         {
                             try
                             {
-                                reader.Recognize(jpg, savePath);
+                                reader.Recognize(jpg, openPath + outputfilder);
                                 Log.Information(reader.Log, "");
                             }
                             catch (Exception fileEx)
@@ -208,11 +226,11 @@ namespace PoiskIT.Andromeda.commands
                         {
                             try
                             {
-                                var listPages = PdfConverter.Convert(pdf.FullName, savePath);
+                                var listPages = PdfConverter.Convert(pdf.FullName); //, openPath + "jpgs");
                                 for (var i = 0; i < listPages.Count; i++)
                                 {
-                                    string pdfname = pdf.Name.Split('.')[0];
-                                    reader.Recognize(listPages[i], $"{pdfname}.Page.{i}", savePath);
+                                    string pdfname = Path.GetFileNameWithoutExtension(pdf.FullName);
+                                    reader.Recognize(listPages[i], $"{pdfname}.Page.{i}", openPath + outputfilder);
                                     Log.Information(reader.Log);
                                 }
                             }
@@ -227,7 +245,7 @@ namespace PoiskIT.Andromeda.commands
                         Console.WriteLine("-------------------------------------------------------------");
                         var file = new FileInfo(path);
                         string result = reader.Recognize(file);
-                        Console.WriteLine($"Saved in {savePath}");
+                        Console.WriteLine($"Saved in {openPath + outputfilder}");
                         Task.Run(() => SaveResult(result));
                         Console.WriteLine("-------------------------------------------------------------");
                         Console.WriteLine(reader.Log);
@@ -248,7 +266,7 @@ namespace PoiskIT.Andromeda.commands
 
         private async Task SaveResult(string text)
         {
-            var fileName = String.Format("{0}\\{1:yyyy-MM-dd hh_mm_ss_fftt}.txt", savePath, DateTime.Now);
+            var fileName = String.Format("{0}\\{1:yyyy-MM-dd hh_mm_ss_fftt}.txt", openPath + outputfilder, DateTime.Now);
             using (StreamWriter writer = new StreamWriter(fileName, false, System.Text.Encoding.Unicode))
             {
                 await writer.WriteLineAsync(text);
@@ -259,6 +277,11 @@ namespace PoiskIT.Andromeda.commands
         {
             if (sender != null)
                 Log.Information(((MemoryMetricsClient)sender).ToString());
+        }
+
+        private bool IsUnix()
+        {
+            return Environment.OSVersion.Platform == PlatformID.Unix;
         }
     }
 }

@@ -6,6 +6,8 @@ RUN apt-get update \
         libc6-dev \
         libgdiplus \
         libx11-dev \
+        libgeotiff-dev \
+        gcc \
     && rm -rf /var/lib/apt/lists/*
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build

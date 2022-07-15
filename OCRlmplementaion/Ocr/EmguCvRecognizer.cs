@@ -1,9 +1,8 @@
 ﻿using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.OCR;
-using Emgu.CV.Structure;
 using PoiskIT.Andromeda.Settings;
-using PoiskIT.Andromeda.Settings.Filters;
+using PoiskIT.Andromeda.Settings.Filters.EmguCv;
 using System.Diagnostics;
 
 namespace PoiskIT.Andromeda.Ocr
@@ -13,7 +12,8 @@ namespace PoiskIT.Andromeda.Ocr
         private static readonly object Lock = new object();
         private readonly Emgu.CV.OCR.Tesseract engine;
         private readonly Options options;
-        private bool _disposed;
+        private readonly FilterManager<Mat> filters;
+        private bool _disposed = false;
         private bool _debug = false;
         private string _log = string.Empty;
 
@@ -23,6 +23,7 @@ namespace PoiskIT.Andromeda.Ocr
                 ocrOptions = Options.Default;
             options = ocrOptions;
             _debug = debug;
+            filters = new FilterManager<Mat>();
             string langsStr = String.Join("+", options.Languages);
             engine = new Emgu.CV.OCR.Tesseract(SetQuality(options.Quality), langsStr, OcrEngineMode.LstmOnly);
         }
@@ -53,35 +54,19 @@ namespace PoiskIT.Andromeda.Ocr
             var source = CvInvoke.Imread(imageInfo.FullName, ImreadModes.Grayscale); // Will be Dispose in FilterManager
             if (source == null)
                 throw new ArgumentNullException(nameof(imageInfo));
-            using (var filters = new FilterManager())
-            {
-                engine.PageSegMode = PageSegMode.SingleBlock;
-                if (options.IsScaling)
-                    filters.Add(new Resize());
 
-                if (options.IsDenoising)
-                    filters.Add(new Denoising());
-
-                if (options.IsGaussianWeighted)
-                    filters.Add(new GaussianWeighted());
-
-                if (options.IsFilter2D)
-                    filters.Add(new Filter2D());
-
-                //if (options.IsBilateral)
-                //    filters.Add(new Bilateral());
-
-                filtersSw.Start();
-                var resultMat = filters.Processing(source);
-                filtersSw.Stop();
-                if (resultMat == null)
-                    throw new NullReferenceException("resultMat can't be null");
-                engine.SetImage(resultMat);
-                recognizeSw.Start();
-                if (engine.Recognize() == 0)
-                    resultText = engine.GetUTF8Text();
-                recognizeSw.Stop();
-            }
+            engine.PageSegMode = PageSegMode.SingleBlock;
+            AddFilters();
+            filtersSw.Start();
+            var resultMat = filters.Processing(source);
+            filtersSw.Stop();
+            if (resultMat == null)
+                throw new NullReferenceException("resultMat can't be null");
+            engine.SetImage(resultMat);
+            recognizeSw.Start();
+            if (engine.Recognize() == 0)
+                resultText = engine.GetUTF8Text();
+            recognizeSw.Stop();
             if (_debug)
             {
                 _log = String.Format("\n\tFilterd time: {0} sec.", filtersSw.Elapsed.TotalSeconds.ToString());
@@ -108,34 +93,13 @@ namespace PoiskIT.Andromeda.Ocr
             string resultText = String.Empty;
 
             using (var bitmap = new Mat())
-            using (var filters = new FilterManager())
             {
                 engine.PageSegMode = PageSegMode.SingleBlock;
-                if (options.IsScaling)
-                    filters.Add(new Resize());
-
-                if (options.IsDenoising)
-                    filters.Add(new Denoising());
-
-                if (options.IsGaussianWeighted)
-                    filters.Add(new GaussianWeighted());
-
-                if (options.IsFilter2D)
-                    filters.Add(new Filter2D());
-
-                //if (options.IsBilateral)
-                //    filters.Add(new Bilateral());
-
+                AddFilters();
                 CvInvoke.Imdecode(image, ImreadModes.Grayscale, bitmap);
-
-                //filtersSw.Start();
-                //var resultMat = filters.Processing(bitmap.Mat);
-                //filtersSw.Stop();
-                //if (resultMat == null)
-                //    throw new NullReferenceException("resultMat can't be null");
                 engine.SetImage(bitmap);
                 recognizeSw.Start();
-                //if (engine.Recognize() == 0)
+                if (engine.Recognize() == 0)
                     resultText = engine.GetUTF8Text();
                 recognizeSw.Stop();
             }
@@ -155,10 +119,29 @@ namespace PoiskIT.Andromeda.Ocr
             File.WriteAllText(fileName, result, System.Text.Encoding.Unicode);
         }
 
+        private void AddFilters()
+        {
+            if (options.IsScaling)
+                filters.Add(new Resize());
+
+            if (options.IsDenoising)
+                filters.Add(new Denoising());
+
+            if (options.IsGaussianWeighted)
+                filters.Add(new GaussianWeighted());
+
+            if (options.IsFilter2D)
+                filters.Add(new Filter2D());
+
+            if (options.IsBilateral)
+                filters.Add(new Bilateral());
+        }
+
         public void Dispose()
         {
             if (_disposed)
                 return;
+            filters.Dispose();
             engine.Dispose();
             _disposed = true;
         }

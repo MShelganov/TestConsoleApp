@@ -1,11 +1,9 @@
-﻿using Emgu.CV;
-
-namespace PoiskIT.Andromeda.Settings.Filters
+﻿namespace PoiskIT.Andromeda.Settings.Filters
 {
-    public interface IFilter
+    public interface IFilter<T> where T : IDisposable
     {
         public string Name { get; }
 
-        public void Exec(Mat src, Mat dst);
+        public T Exec(T src);
     }
 }

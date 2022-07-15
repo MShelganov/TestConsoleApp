@@ -1,12 +1,13 @@
 ﻿using Emgu.CV;
 
-namespace PoiskIT.Andromeda.Settings.Filters
+namespace PoiskIT.Andromeda.Settings.Filters.EmguCv
 {
-    public class Filter2D : IFilter
+    public class Filter2D : IFilter<Mat>
     {
         public string Name { get; } = "Filter2D";
-        public void Exec(Mat src, Mat dst)
+        public Mat Exec(Mat src)
         {
+            var dst = new Mat(src.Size, src.Depth, src.NumberOfChannels);
             float[,] matrix = new float[3, 3]
             {
                 { 0, 0, 0 },
@@ -15,6 +16,7 @@ namespace PoiskIT.Andromeda.Settings.Filters
             };
             ConvolutionKernelF kernel = new ConvolutionKernelF(matrix);
             CvInvoke.Filter2D(src, dst, kernel, new System.Drawing.Point(0, 0));
+            return dst;
         }
     }
 }
