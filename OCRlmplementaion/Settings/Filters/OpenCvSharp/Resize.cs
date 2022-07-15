@@ -1,7 +1,7 @@
 ﻿using OpenCvSharp;
 using PoiskIT.Andromeda.Settings.Filters;
 
-namespace OCRlmplementaion.Settings.Filters.OpenCvSharp
+namespace PoiskIT.Andromeda.Settings.Filters.OpenCvSharp
 {
     public class Resize : IFilter<Mat>
     {
@@ -12,10 +12,12 @@ namespace OCRlmplementaion.Settings.Filters.OpenCvSharp
         {
             _size = minSize;
         }
-        public void Exec(Mat src, Mat dst)
+        public Mat Exec(Mat src)
         {
+            var dst = new Mat(src.Size(), src.Type());
             double dscale = Math.Min(_size / src.Width, _size / src.Height);
             Cv2.Resize(src, dst, new Size(), dscale, dscale);
+            return dst;
         }
     }
 }

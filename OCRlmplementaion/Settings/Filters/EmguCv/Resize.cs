@@ -12,10 +12,12 @@ namespace PoiskIT.Andromeda.Settings.Filters.EmguCv
         {
             _size = minSize;
         }
-        public void Exec(Mat src, Mat dst)
+        public Mat Exec(Mat src)
         {
+            var dst = new Mat(src.Size, src.Depth, src.NumberOfChannels);
             double dscale = Math.Min(_size / src.Width, _size / src.Height);
             CvInvoke.Resize(src, dst, new System.Drawing.Size(), dscale, dscale);
+            return dst;
         }
     }
 }

@@ -23,7 +23,7 @@ namespace PoiskIT.Andromeda.Utils
         /// <param name="inputFilePath"></param>
         /// <param name="outputFolder"></param>
         /// <returns></returns>
-        public static List<byte[]> Convert(string inputFilePath, string outputFolder)
+        public static List<byte[]> Convert(string inputFilePath, string? outputFolder = null)
         {
             //var jpegDevice = new GhostscriptJpegDevice(GhostscriptJpegDeviceType.Jpeg)
             //{
@@ -53,7 +53,8 @@ namespace PoiskIT.Andromeda.Utils
                 foreach (var image in images)
                 {
                     // Write page to file that contains the page number
-                    //image.Write($"{outputFolder}.Page.{page}.png");
+                    if (!String.IsNullOrEmpty(outputFolder))
+                        image.Write($"{outputFolder}.Page.{page}.png");
                     imageBytes.Add(image.ToByteArray(MagickFormat.Png32));
                     page++;
                 }

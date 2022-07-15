@@ -1,7 +1,7 @@
 ﻿using OpenCvSharp;
 using PoiskIT.Andromeda.Settings.Filters;
 
-namespace OCRlmplementaion.Settings.Filters.OpenCvSharp
+namespace PoiskIT.Andromeda.Settings.Filters.OpenCvSharp
 {
     public class GaussianWeighted : IFilter<Mat>
     {
@@ -22,10 +22,12 @@ namespace OCRlmplementaion.Settings.Filters.OpenCvSharp
             _beta = beta;
             _gamma = gamma;
         }
-        public void Exec(Mat src, Mat dst)
+        public Mat Exec(Mat src)
         {
+            var dst = new Mat(src.Size(), src.Type());
             Cv2.GaussianBlur(src, dst, _size, _sigma);
             Cv2.AddWeighted(src, _alpha, dst, _beta, _gamma, dst);
+            return dst;
         }
     }
 }

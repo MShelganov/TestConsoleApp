@@ -1,7 +1,6 @@
 ﻿using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.OCR;
-using Emgu.CV.Structure;
 using PoiskIT.Andromeda.Settings;
 using PoiskIT.Andromeda.Settings.Filters.EmguCv;
 using System.Diagnostics;
@@ -14,7 +13,7 @@ namespace PoiskIT.Andromeda.Ocr
         private readonly Emgu.CV.OCR.Tesseract engine;
         private readonly Options options;
         private readonly FilterManager<Mat> filters;
-        private bool _disposed;
+        private bool _disposed = false;
         private bool _debug = false;
         private string _log = string.Empty;
 

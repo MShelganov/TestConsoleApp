@@ -22,10 +22,12 @@ namespace PoiskIT.Andromeda.Settings.Filters.EmguCv
             _beta = beta;
             _gamma = gamma;
         }
-        public void Exec(Mat src, Mat dst)
+        public Mat Exec(Mat src)
         {
+            var dst = new Mat(src.Size, src.Depth, src.NumberOfChannels);
             CvInvoke.GaussianBlur(src, dst, _size, _sigma);
             CvInvoke.AddWeighted(src, _alpha, dst, _beta, _gamma, dst);
+            return dst;
         }
     }
 }

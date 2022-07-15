@@ -15,9 +15,11 @@ namespace PoiskIT.Andromeda.Settings.Filters.EmguCv
             _sigmaColor = sigmaColor;
             _sigmaSpace = sigmaSpace;
         }
-        public void Exec(Mat src, Mat dst)
+        public Mat Exec(Mat src)
         {
+            var dst = new Mat(src.Size, src.Depth, src.NumberOfChannels);
             CvInvoke.BilateralFilter(src, dst, _d, _sigmaColor, _sigmaSpace);
+            return dst;
         }
     }
 }

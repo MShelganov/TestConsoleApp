@@ -1,7 +1,7 @@
 ﻿using OpenCvSharp;
 using PoiskIT.Andromeda.Settings.Filters;
 
-namespace OCRlmplementaion.Settings.Filters.OpenCvSharp
+namespace PoiskIT.Andromeda.Settings.Filters.OpenCvSharp
 {
     public class Denoising : IFilter<Mat>
     {
@@ -16,9 +16,11 @@ namespace OCRlmplementaion.Settings.Filters.OpenCvSharp
             _templateWindowSize = templateWindowSize;
             _searchWindowSize = searchWindowSize;
         }
-        public void Exec(Mat src, Mat dst)
+        public Mat Exec(Mat src)
         {
+            var dst = new Mat(src.Size(), src.Type());
             Cv2.FastNlMeansDenoising(src, dst, _h, _templateWindowSize, _searchWindowSize);
+            return dst;
         }
     }
 }

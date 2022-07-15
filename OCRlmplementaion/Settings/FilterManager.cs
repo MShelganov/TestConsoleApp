@@ -2,7 +2,7 @@
 
 namespace PoiskIT.Andromeda.Settings
 {
-    public class FilterManager<T> : IDisposable where T : class, IDisposable, new()
+    public class FilterManager<T> : IDisposable where T : class, IDisposable
     {
         private bool _disposed;
         private List<T> mats;
@@ -30,10 +30,7 @@ namespace PoiskIT.Andromeda.Settings
             {
                 var last = mats.Last();
 
-                //var filterMat = new Mat(last.Size, last.Depth, last.NumberOfChannels);
-                T filterMat = new T();
-                filter.Exec(last, filterMat);
-                mats.Add(filterMat);
+                mats.Add(filter.Exec(last));
             }
             return mats.Last();
         }

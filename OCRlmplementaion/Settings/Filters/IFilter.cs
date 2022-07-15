@@ -4,6 +4,6 @@
     {
         public string Name { get; }
 
-        public void Exec(T src, T dst);
+        public T Exec(T src);
     }
 }

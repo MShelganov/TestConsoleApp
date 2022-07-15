@@ -15,9 +15,12 @@ namespace PoiskIT.Andromeda.Settings.Filters.OpenCvSharp
             _sigmaColor = sigmaColor;
             _sigmaSpace = sigmaSpace;
         }
-        public void Exec(Mat src, Mat dst)
+        public Mat Exec(Mat src)
         {
+            var dst = new Mat(src.Size(), src.Type());
+            Cv2.CvtColor(src, src, ColorConversionCodes.GRAY2BGR);
             Cv2.BilateralFilter(src, dst, _d, _sigmaColor, _sigmaSpace);
+            return dst;
         }
     }
 }
